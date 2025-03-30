@@ -44,7 +44,7 @@ class TireStrategy {
         this.container.innerHTML = `
             <div class="tire-strategy-header">
                 <div class="ts-title">
-                    <i class="fas fa-chart-bar"></i> TYRE STRATEGY
+                    <i class="fas fa-chart-bar"></i> TIRE STRATEGY
                 </div>
                 <div class="ts-legend">
                     <span class="ts-legend-item">
@@ -126,6 +126,25 @@ class TireStrategy {
                 width: 15px;
                 height: 15px;
             }
+            .ts-xaxis-container {
+                position: relative;
+                margin-left: 60px;
+                margin-top: 5px;
+                height: 30px;
+            }
+
+            .ts-xaxis-labels {
+                position: relative;
+                width: 100%;
+                height: 20px;
+            }
+
+            .ts-xaxis-label {
+                position: absolute;
+                transform: translateX(-50%);
+                color: #999;
+                font-size: 0.9rem;
+            }
             .compound-circle {
                 display: flex;
                 align-items: center;
@@ -193,10 +212,19 @@ class TireStrategy {
             .ts-stint-Unknown { background-color: #666666; color: white; }
             
             .ts-xaxis {
-                display: flex;
-                justify-content: space-between;
+                display: block;
+                position: relative;
+                height: 25px;
+                margin-top: 10px;
                 padding-left: 60px;
                 color: #999;
+                font-size: 0.85rem;
+            }
+
+            .ts-xaxis div {
+                position: absolute;
+                transform: translateX(-50%);
+                text-align: center;
             }
             
             /* Tooltip */
@@ -277,23 +305,38 @@ class TireStrategy {
         const drivers = this.data.results.sort((a, b) => a.position - b.position);
         console.log(`Found ${drivers.length} drivers for chart`);
         
-        // Find total laps from strategies
+        // Define html variable here - this was missing
+        let html = '';
+        
+        // Find total laps from strategies or race data
         let totalLaps = 0;
-        for (const driverCode in this.data.strategies) {
-            const stints = this.data.strategies[driverCode];
-            for (const stint of stints) {
-                const stintEnd = stint.startLap + stint.laps - 1;
-                totalLaps = Math.max(totalLaps, stintEnd);
+        
+        // Try to get total laps from winner's lap count
+        const winner = this.data.results.find(driver => driver.position === 1);
+        if (winner && this.data.strategies[winner.code]) {
+            // Sum up all the winner's stint laps
+            const winnerStints = this.data.strategies[winner.code];
+            totalLaps = winnerStints.reduce((sum, stint) => sum + stint.laps, 0);
+        } else {
+            // Fallback to calculating from stints
+            for (const driverCode in this.data.strategies) {
+                const stints = this.data.strategies[driverCode];
+                for (const stint of stints) {
+                    const stintEnd = stint.startLap + stint.laps - 1;
+                    totalLaps = Math.max(totalLaps, stintEnd);
+                }
             }
         }
         
-        // Round up to nearest 5
-        totalLaps = Math.ceil(totalLaps / 5) * 5;
-        if (totalLaps < 50) totalLaps = 57; // Default for races with incomplete data
+        // If still no valid total, use a sensible default
+        if (totalLaps < 20) {
+            totalLaps = 57; // Default for races with incomplete data (Bahrain 2024 had 57 laps)
+        }
+        
         console.log('Total race laps:', totalLaps);
         
-        // Create chart HTML
-        let html = '<div class="ts-grid">';
+        // Create the main grid
+        html += '<div class="ts-grid">';
         
         // Driver labels
         html += '<div class="ts-drivers">';
@@ -330,10 +373,10 @@ class TireStrategy {
                     `;
                     
                     html += `<div class="ts-stint ts-stint-${compound}" 
-                            style="width: ${width}%; background-color: ${bgColor}; color: ${textColor}; border-radius: 8px; margin: 0 1px;" 
-                            ${dataAttrs}>
-                            ${stint.laps}
-                        </div>`;
+                                style="width: ${width}%; background-color: ${bgColor}; color: ${textColor}; border-radius: 8px; margin: 0 1px;" 
+                                ${dataAttrs}>
+                                ${stint.laps}
+                            </div>`;
                 }
             }
             
@@ -342,13 +385,26 @@ class TireStrategy {
         html += '</div>';
         html += '</div>';
         
-        // X-axis labels
-        html += '<div class="ts-xaxis">';
-        html += '<div>0</div><div>15</div><div>30</div>';
-        if (totalLaps > 40) {
-            html += `<div>${totalLaps}</div>`;
+        // X-axis with proper alignment
+        html += '<div class="ts-xaxis-container">';
+        html += '<div class="ts-xaxis-labels">';
+        
+        // Create evenly spaced labels that match the width of the chart
+        const numLabels = 6; // Including 0 and totalLaps
+        const labelStep = totalLaps / (numLabels - 1);
+        
+        for (let i = 0; i < numLabels; i++) {
+            const lapNumber = Math.round(i * labelStep);
+            const position = (lapNumber / totalLaps * 100).toFixed(2);
+            
+            html += `<div class="ts-xaxis-label" style="left: ${position}%">${lapNumber}</div>`;
         }
+        
         html += '</div>';
+        html += '</div>';
+        
+        // Set the HTML content
+        this.chartElement.innerHTML = html;
         
         // Add tooltip div
         html += '<div class="ts-tooltip" id="ts-tooltip"></div>';
