@@ -171,16 +171,23 @@ function extractStrategyFromLaps(lapsData) {
         const sortedLaps = [...laps].sort((a, b) => a.lap - b.lap);
         
         let currentStint = null;
+        let previousLapNumber = 0;
         
         // Process each lap to identify stints
         sortedLaps.forEach((lap, index) => {
             const compound = lap.compound || 'Unknown';
             const lapNum = lap.lap;
             
-            // Check if this is a new stint
+            // Check for pit stops (gap in lap numbers larger than 1)
+            const hasPitStop = index > 0 && lapNum > previousLapNumber + 1;
+            
+            // Start a new stint if:
+            // 1. This is the first lap
+            // 2. The compound has changed
+            // 3. There's a gap in lap numbers (pit stop)
             const isNewStint = !currentStint || 
-                currentStint.compound !== compound || 
-                (index > 0 && lapNum > sortedLaps[index-1].lap + 1); // Gap in lap numbers
+                               currentStint.compound !== compound ||
+                               hasPitStop;
             
             if (isNewStint) {
                 // Add the previous stint if it exists
@@ -198,6 +205,9 @@ function extractStrategyFromLaps(lapsData) {
                 // Continue current stint
                 currentStint.laps++;
             }
+            
+            // Remember this lap number for the next iteration
+            previousLapNumber = lapNum;
         });
         
         // Add the final stint

@@ -160,6 +160,8 @@ class TireStrategy {
                 justify-content: center;
                 font-weight: bold;
                 font-size: 0.85rem;
+                border-radius: 8px; /* Add rounded corners */
+                margin: 0 1px; /* Add small margin between stints */
             }
             .ts-stint-Soft { background-color: #E10600; color: white; }
             .ts-stint-Medium { background-color: #FFF200; color: black; }
@@ -182,11 +184,32 @@ class TireStrategy {
                 background-color: rgba(0, 0, 0, 0.9);
                 color: white;
                 padding: 15px;
-                border-radius: 4px;
+                border-radius: 8px;
                 font-size: 0.9rem;
                 z-index: 1000;
                 min-width: 200px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            }
+            .tire-tooltip-icon {
+                width: 20px;
+                height: 20px;
+                object-fit: contain;
+                vertical-align: middle;
+                margin-right: 6px;
+            }
+            .tooltip-title {
+                font-weight: bold;
+                margin-bottom: 15px;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+                padding-bottom: 5px;
+            }
+
+            .tooltip-stint {
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
             }
             
             /* Loading and error messages */
@@ -286,10 +309,10 @@ class TireStrategy {
                     `;
                     
                     html += `<div class="ts-stint ts-stint-${compound}" 
-                                style="width: ${width}%; background-color: ${bgColor}; color: ${textColor};" 
-                                ${dataAttrs}>
-                                ${stint.laps}
-                            </div>`;
+                            style="width: ${width}%; background-color: ${bgColor}; color: ${textColor}; border-radius: 8px; margin: 0 1px;" 
+                            ${dataAttrs}>
+                            ${stint.laps}
+                        </div>`;
                 }
             }
             
@@ -331,47 +354,86 @@ class TireStrategy {
         if (!tooltip) return;
         
         const driverCode = stintElement.dataset.driver;
-        const compound = stintElement.dataset.compound;
-        const startLap = parseInt(stintElement.dataset.start);
-        const laps = parseInt(stintElement.dataset.laps);
-        const endLap = startLap + laps - 1;
         
-        // Find driver data
+        // Get driver data
         const driver = this.data.results.find(d => d.code === driverCode);
-        const driverName = driver ? driver.name : '';
+        const driverName = driver ? driver.name : driverCode;
         
-        // Show compound-specific information
-        let compoundInfo = '';
-        switch(compound) {
-            case 'Soft':
-                compoundInfo = '<span style="color:#E10600">●</span> SOFT: ' + laps + ' Laps';
-                break;
-            case 'Medium':
-                compoundInfo = '<span style="color:#FFF200">●</span> MEDIUM: ' + laps + ' Laps';
-                break;
-            case 'Hard':
-                compoundInfo = '<span style="color:#FFFFFF">●</span> HARD: ' + laps + ' Laps';
-                break;
-            case 'Intermediate':
-                compoundInfo = '<span style="color:#43B02A">●</span> INTERMEDIATE: ' + laps + ' Laps';
-                break;
-            case 'Wet':
-                compoundInfo = '<span style="color:#0067AD">●</span> WET: ' + laps + ' Laps';
-                break;
-            default:
-                compoundInfo = compound + ': ' + laps + ' laps';
+        // Get ALL stints for this driver, not just the hovered one
+        const allDriverStints = this.data.strategies[driverCode] || [];
+        
+        // Build tooltip title with driver info
+        let tooltipContent = `<div class="tooltip-title">${driverCode} - ${driverName}</div>`;
+        
+        // Add each stint to the tooltip
+        allDriverStints.forEach(stint => {
+            const compound = stint.compound || 'Unknown';
+            const laps = stint.laps;
+            
+            // Get the tire image path based on compound
+            let tireImagePath = '';
+            switch(compound.toLowerCase()) {
+                case 'soft':
+                    tireImagePath = '/images/tires/soft-tire.png';
+                    break;
+                case 'medium':
+                    tireImagePath = '/images/tires/med-tire.png';
+                    break;
+                case 'hard':
+                    tireImagePath = '/images/tires/hard-tire.png';
+                    break;
+                case 'intermediate':
+                    tireImagePath = '/images/tires/inter-tire.png';
+                    break;
+                case 'wet':
+                    tireImagePath = '/images/tires/wet-tire.png';
+                    break;
+                default:
+                    tireImagePath = '/images/tires/soft-tire.png'; // Default fallback
+            }
+            
+            // Add stint info to tooltip with tire image
+            tooltipContent += `
+                <div class="tooltip-stint">
+                    <img src="${tireImagePath}" class="tire-tooltip-icon" alt="${compound}" />
+                    <span style="font-weight:bold;">${compound.toUpperCase()}</span>: ${laps} Laps
+                </div>
+            `;
+        });
+        
+        // Set tooltip content
+        tooltip.innerHTML = tooltipContent;
+        
+        // Position the tooltip - ensure it stays within window boundaries
+        const tooltipWidth = 220; // Slightly wider to accommodate images
+        const tooltipHeight = 60 + (allDriverStints.length * 30); // Approximate height based on number of stints
+        
+        // Get window dimensions
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // Get initial position
+        let x = event.clientX + 10;
+        let y = event.clientY + 10;
+        
+        // Check right boundary
+        if (x + tooltipWidth > windowWidth) {
+            x = windowWidth - tooltipWidth - 20;
         }
         
-        // Create tooltip content
-        tooltip.innerHTML = `
-            <div><strong>${driverCode}</strong> - ${driverName}</div>
-            <div>${compoundInfo}</div>
-            <div>Laps ${startLap}-${endLap}</div>
-        `;
+        // Check bottom boundary
+        if (y + tooltipHeight > windowHeight) {
+            y = windowHeight - tooltipHeight - 20;
+        }
         
-        // Show tooltip
+        // Make sure tooltip is not positioned outside the window
+        x = Math.max(10, Math.min(windowWidth - tooltipWidth - 10, x));
+        y = Math.max(10, Math.min(windowHeight - tooltipHeight - 10, y));
+        
+        // Apply final position
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y}px`;
         tooltip.style.display = 'block';
-        this.moveTooltip(event);
     }
     
     // Move tooltip with cursor
