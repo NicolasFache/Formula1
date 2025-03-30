@@ -44,14 +44,24 @@ class TireStrategy {
         this.container.innerHTML = `
             <div class="tire-strategy-header">
                 <div class="ts-title">
-                    <i class="fas fa-chart-bar"></i> TIRE STRATEGY
+                    <i class="fas fa-chart-bar"></i> TYRE STRATEGY
                 </div>
                 <div class="ts-legend">
-                    <span class="ts-legend-item"><span class="ts-color-soft"></span> Soft</span>
-                    <span class="ts-legend-item"><span class="ts-color-medium"></span> Medium</span>
-                    <span class="ts-legend-item"><span class="ts-color-hard"></span> Hard</span>
-                    <span class="ts-legend-item"><span class="ts-color-inter"></span> Intermediate</span>
-                    <span class="ts-legend-item"><span class="ts-color-wet"></span> Wet</span>
+                    <span class="ts-legend-item">
+                        <img src="/images/tires/soft-tire.png" class="ts-tire-icon" alt="Soft"> Soft
+                    </span>
+                    <span class="ts-legend-item">
+                        <img src="/images/tires/med-tire.png" class="ts-tire-icon" alt="Medium"> Medium
+                    </span>
+                    <span class="ts-legend-item">
+                        <img src="/images/tires/hard-tire.png" class="ts-tire-icon" alt="Hard"> Hard
+                    </span>
+                    <span class="ts-legend-item">
+                        <img src="/images/tires/inter-tire.png" class="ts-tire-icon" alt="Intermediate"> Intermediate
+                    </span>
+                    <span class="ts-legend-item">
+                        <img src="/images/tires/wet-tire.png" class="ts-tire-icon" alt="Wet"> Wet
+                    </span>
                 </div>
             </div>
             <div id="ts-chart-container"></div>
@@ -103,18 +113,30 @@ class TireStrategy {
             }
             .ts-legend {
                 display: flex;
-                gap: 15px;
+                gap: 1px;
                 flex-wrap: wrap;
             }
             .ts-legend-item {
                 display: flex;
                 align-items: center;
-                gap: 5px;
+                margin-right: 15px;
             }
             .ts-legend-item span:first-child {
                 display: inline-block;
                 width: 15px;
                 height: 15px;
+            }
+            .compound-circle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                border: 2px solid #333;
+                font-weight: bold;
+                font-size: 14px;
+                background-color: black;
             }
             .ts-color-soft { background-color: #E10600; }
             .ts-color-medium { background-color: #FFF200; }
@@ -198,17 +220,16 @@ class TireStrategy {
                 margin-right: 6px;
             }
             .tooltip-title {
-                font-weight: bold;
-                margin-bottom: 15px;
                 text-align: center;
-                border-bottom: 1px solid rgba(255,255,255,0.2);
-                padding-bottom: 5px;
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-bottom: 10px;
             }
 
             .tooltip-stint {
-                margin-bottom: 8px;
                 display: flex;
                 align-items: center;
+                margin-bottom: 8px;
                 gap: 8px;
             }
             
@@ -363,40 +384,48 @@ class TireStrategy {
         const allDriverStints = this.data.strategies[driverCode] || [];
         
         // Build tooltip title with driver info
-        let tooltipContent = `<div class="tooltip-title">${driverCode} - ${driverName}</div>`;
+        let tooltipContent = `<div class="tooltip-title">${driverCode}</div>`;
         
-        // Add each stint to the tooltip
+        // Add each stint to the tooltip with compound-specific styling
         allDriverStints.forEach(stint => {
             const compound = stint.compound || 'Unknown';
             const laps = stint.laps;
             
-            // Get the tire image path based on compound
+            // Get tire image path and color based on compound
             let tireImagePath = '';
+            let compoundColor = '';
+            
             switch(compound.toLowerCase()) {
                 case 'soft':
                     tireImagePath = '/images/tires/soft-tire.png';
+                    compoundColor = '#E10600';
                     break;
                 case 'medium':
                     tireImagePath = '/images/tires/med-tire.png';
+                    compoundColor = '#FFF200';
                     break;
                 case 'hard':
                     tireImagePath = '/images/tires/hard-tire.png';
+                    compoundColor = '#FFFFFF';
                     break;
                 case 'intermediate':
                     tireImagePath = '/images/tires/inter-tire.png';
+                    compoundColor = '#43B02A';
                     break;
                 case 'wet':
                     tireImagePath = '/images/tires/wet-tire.png';
+                    compoundColor = '#0067AD';
                     break;
                 default:
-                    tireImagePath = '/images/tires/soft-tire.png'; // Default fallback
+                    tireImagePath = '/images/tires/soft-tire.png';
+                    compoundColor = '#888888';
             }
             
             // Add stint info to tooltip with tire image
             tooltipContent += `
                 <div class="tooltip-stint">
-                    <img src="${tireImagePath}" class="tire-tooltip-icon" alt="${compound}" />
-                    <span style="font-weight:bold;">${compound.toUpperCase()}</span>: ${laps} Laps
+                    <img src="${tireImagePath}" class="tire-tooltip-icon" alt="${compound}">
+                    <span style="color: ${compoundColor}; font-weight: bold; text-transform: uppercase;">${compound}: ${laps} Laps</span>
                 </div>
             `;
         });
@@ -404,9 +433,9 @@ class TireStrategy {
         // Set tooltip content
         tooltip.innerHTML = tooltipContent;
         
-        // Position the tooltip - ensure it stays within window boundaries
-        const tooltipWidth = 220; // Slightly wider to accommodate images
-        const tooltipHeight = 60 + (allDriverStints.length * 30); // Approximate height based on number of stints
+        // Position the tooltip
+        const tooltipWidth = 220;
+        const tooltipHeight = 60 + (allDriverStints.length * 30);
         
         // Get window dimensions
         const windowWidth = window.innerWidth;
@@ -416,19 +445,14 @@ class TireStrategy {
         let x = event.clientX + 10;
         let y = event.clientY + 10;
         
-        // Check right boundary
+        // Check boundaries
         if (x + tooltipWidth > windowWidth) {
             x = windowWidth - tooltipWidth - 20;
         }
         
-        // Check bottom boundary
         if (y + tooltipHeight > windowHeight) {
             y = windowHeight - tooltipHeight - 20;
         }
-        
-        // Make sure tooltip is not positioned outside the window
-        x = Math.max(10, Math.min(windowWidth - tooltipWidth - 10, x));
-        y = Math.max(10, Math.min(windowHeight - tooltipHeight - 10, y));
         
         // Apply final position
         tooltip.style.left = `${x}px`;

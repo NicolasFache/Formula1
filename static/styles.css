@@ -2,13 +2,63 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Titillium Web', sans-serif;
 }
 
 body {
     background-color: #111217;
     color: white;
     line-height: 1.6;
+    font-family: 'Titillium Web', sans-serif;
+}
+
+/* Enhance header text */
+.race-name, .tab-btn, .selector-text, .driver-code, .position {
+    font-family: 'Titillium Web', sans-serif;
+    font-weight: 700;
+}
+
+/* Add F1-style thin weight for certain elements */
+.driver-status, .time-gap, .track-location, .track-date {
+    font-family: 'Titillium Web', sans-serif;
+    font-weight: 300;
+}
+
+/* Make sure the tire strategy chart also uses the font */
+.tire-strategy-container, .ts-title, .ts-driver, .ts-stint {
+    font-family: 'Titillium Web', sans-serif;
+}
+
+.ts-tooltip {
+    background-color: rgba(20, 22, 28, 0.95) !important;
+    border: 1px solid #333 !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    min-width: 200px !important;
+}
+
+.ts-legend-item {
+    display: flex;
+    align-items: center;
+    margin-right: 1px;
+}
+
+.ts-tire-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.compound-circle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
 }
 
 .container {
@@ -642,7 +692,7 @@ body {
 }
 
 .gap-time {
-    color: #ffa500;
+    color: #ffffff;
 }
 
 .dnf {
@@ -792,40 +842,35 @@ body {
     height: 22px;
     display: flex;
     align-items: center;
-    gap: 1.5px; /* Add gap between stints */
+    gap: 1px; /* Add gap between stints */
 }
 
 .ts-tooltip {
-    position: fixed !important;
-    z-index: 9999 !important;
-    background-color: rgba(0, 0, 0, 0.9) !important;
-    color: white !important;
-    padding: 15px !important;
+    background-color: rgba(20, 22, 28, 0.95) !important;
+    border: 1px solid #333 !important;
     border-radius: 8px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
-    min-width: 220px !important;
+    padding: 12px !important;
+    min-width: 200px !important;
 }
 
 .tooltip-stint {
     display: flex !important;
     align-items: center !important;
+    margin-bottom: 8px !important;
     gap: 8px !important;
-    margin-bottom: 10px !important;
 }
 
 .tooltip-title {
+    font-size: 1.2rem !important;
     font-weight: bold !important;
-    margin-bottom: 12px !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-    padding-bottom: 5px !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
 }
 
 .tire-tooltip-icon {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
+    width: 22px;
+    height: 22px;
     vertical-align: middle;
-    margin-right: 6px;
 }
 
 
@@ -887,8 +932,18 @@ body {
         min-width: 50%;
     }
     
-    .lap-title, .lap-time {
+    .lap-title {
         font-size: 1rem;
+    }
+
+    .lap-time {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        flex-shrink: 0;
     }
     
     .lap-detail {

@@ -530,6 +530,21 @@ document.addEventListener('DOMContentLoaded', function() {
             // If no decimal point, add .000
             formattedTime += '.000';
         }
+
+        let tireImageSrc = '/images/tires/soft-tire.png'; // Default
+        const compound = fastestLapData.tireCompound || '';
+        
+        if (compound.toLowerCase().includes('soft')) {
+            tireImageSrc = '/images/tires/soft-tire.png';
+        } else if (compound.toLowerCase().includes('medium')) {
+            tireImageSrc = '/images/tires/med-tire.png';
+        } else if (compound.toLowerCase().includes('hard')) {
+            tireImageSrc = '/images/tires/hard-tire.png';
+        } else if (compound.toLowerCase().includes('inter')) {
+            tireImageSrc = '/images/tires/inter-tire.png';
+        } else if (compound.toLowerCase().includes('wet')) {
+            tireImageSrc = '/images/tires/wet-tire.png';
+        }
         
         // Create the new fastest lap layout that matches the example
         fastestLap.innerHTML = `
@@ -538,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             
             <div class="lap-time">
-                <i class="fas fa-circle" style="color: #ff3a3a;"></i>
+                <img src="${tireImageSrc}" class="tire-icon" alt="${compound}">
                 ${formattedTime} <span class="lap-time-driver">· ${fastestLapData.driver}</span>
             </div>
             
