@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formula 1 Race Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional styles for lap chart */
+        .lap-chart-wrapper {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            display: block !important; /* Force display */
+            min-height: 500px;
+        }
+        
+        #lap-chart-container {
+            width: 100%;
+            min-height: 400px;
+            display: block !important; /* Force display */
+        }
+        
+        .lap-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .lap-chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Force all SVG elements to be visible */
+        svg, svg * {
+            visibility: visible !important;
+        }
+        
+        /* Force chart elements to be visible */
+        .lap-chart-container,
+        .lap-chart-content,
+        .lap-chart-drivers,
+        #lap-chart-svg {
+            display: block !important;
+            visibility: visible !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">        
+        <!-- Selectors -->
+        <div class="selectors">
+            <div class="selector" id="seasonSelector">
+                <i class="fas fa-calendar selector-icon"></i>
+                <span class="selector-text">2024</span>
+                <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                <div class="dropdown" id="seasonDropdown">
+                    <!-- Seasons will be populated via JavaScript -->
+                </div>
+            </div>
+            
+            <div class="selector" id="raceSelector">
+                <i class="fas fa-flag-checkered selector-icon"></i>
+                <span class="selector-text">Select Race</span>
+                <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                <div class="dropdown" id="raceDropdown">
+                    <!-- Races will be populated via JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Race Type Tabs -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="race">Race</button>
+            <button class="tab-btn" data-tab="qualifying">Qualifying</button>
+            <button class="tab-btn" data-tab="practice3">Practice 3</button>
+            <button class="tab-btn" data-tab="practice2">Practice 2</button>
+            <button class="tab-btn" data-tab="practice1">Practice 1</button>
+            <button class="tab-btn" data-tab="sprint">Sprint</button>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Loading event data...</p>
+        </div>
+        
+        <!-- No Data Message -->
+        <div class="no-data" id="noDataMessage">
+            <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <h2>No Data Available</h2>
+            <p>Please select a different race or session.</p>
+        </div>
+        
+        <!-- Race Content -->
+        <div id="raceContent" class="content-wrapper">
+            <div class="main-content">
+                <!-- Top 3 Drivers -->
+                <div class="top-drivers" id="topDrivers"></div>
+                
+                <!-- Fastest Lap -->
+                <div class="fastest-lap" id="fastestLap"></div>
+                
+                <!-- Race Title -->
+                <div class="race-title" id="raceTitle"></div>
+                
+                <!-- Track Info -->
+                <div class="track-section" id="trackSection"></div>
+                
+                <!-- Lap Chart -->
+                <div class="lap-chart-wrapper" id="lapChartWrapper">
+                    <div id="lap-chart-container">
+                        <!-- The lap chart will be rendered here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="side-leaderboard">
+                <!-- Results Table -->
+                <div class="results-table" id="resultsTable"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Test data for lap chart -->
+    <script>
+        // Define test data for lap chart when API fails
+        const testLapData = {
+            'VER': [
+                { lap: 1, time: '1:33.245', compound: 'Soft', tireAge: 1 },
+                { lap: 2, time: '1:31.235', compound: 'Soft', tireAge: 2 },
+                { lap: 3, time: '1:30.987', compound: 'Soft', tireAge: 3 },
+                { lap: 4, time: '1:30.765', compound: 'Soft', tireAge: 4 },
+                { lap: 5, time: '1:30.654', compound: 'Soft', tireAge: 5 }
+            ],
+            'HAM': [
+                { lap: 1, time: '1:33.512', compound: 'Medium', tireAge: 1 },
+                { lap: 2, time: '1:31.789', compound: 'Medium', tireAge: 2 },
+                { lap: 3, time: '1:31.124', compound: 'Medium', tireAge: 3 },
+                { lap: 4, time: '1:30.987', compound: 'Medium', tireAge: 4 },
+                { lap: 5, time: '1:30.876', compound: 'Medium', tireAge: 5 }
+            ],
+            'LEC': [
+                { lap: 1, time: '1:33.412', compound: 'Hard', tireAge: 1 },
+                { lap: 2, time: '1:31.689', compound: 'Hard', tireAge: 2 },
+                { lap: 3, time: '1:31.024', compound: 'Hard', tireAge: 3 },
+                { lap: 4, time: '1:30.887', compound: 'Hard', tireAge: 4 },
+                { lap: 5, time: '1:30.776', compound: 'Hard', tireAge: 5 }
+            ]
+        };
+    </script>
+    <script>
+        // Force a complete reload to clear cached scripts
+        if (localStorage.getItem('lastReload') !== 'true') {
+            localStorage.setItem('lastReload', 'true');
+            window.location.reload(true);
+        } else {
+            localStorage.removeItem('lastReload');
+        }
+        </script>
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script src="lap-chart.js"></script>
+    <script src="lap-chart-integration.js"></script>
+    <script src="tire-strategy.js"></script>
+    <script src="tire-strategy-integration.js"></script>
+</body>
+</html>

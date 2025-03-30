@@ -1,0 +1,851 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: #111217;
+    color: white;
+    line-height: 1.6;
+}
+
+.container {
+    width: 90%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "logo"
+        "selectors"
+        "tabs"
+        "loading"
+        "nodata"
+        "content";
+    gap: 20px;
+}
+
+/* Header and Logo */
+.logo-container {
+    text-align: center;
+    padding: 20px 0;
+    grid-area: logo;
+}
+
+.logo {
+    width: 180px;
+}
+
+/* Season and Race Selectors */
+.selectors {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    grid-area: selectors;
+}
+
+.selector {
+    background-color: #1c1e24;
+    border: none;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex: 1;
+    min-width: 150px;
+    position: relative;
+}
+
+.selector:hover {
+    background-color: #2a2d36;
+}
+
+.selector-icon {
+    font-size: 1.2rem;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #1c1e24;
+    border-radius: 0 0 8px 8px;
+    z-index: 10;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s;
+}
+
+.selector.active .dropdown {
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid #333;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #2a2d36;
+}
+
+.dropdown-item.selected {
+    background-color: #FF5C00;
+    color: white;
+}
+
+/* Loading Indicator */
+.loading {
+    text-align: center;
+    padding: 50px 0;
+    display: none;
+    grid-area: loading;
+}
+
+.loading.active {
+    display: block;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #333;
+    border-top: 5px solid #FF5C00;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* No Data Message */
+.no-data {
+    text-align: center;
+    padding: 50px 0;
+    color: #ccc;
+    display: none;
+    grid-area: nodata;
+}
+
+.no-data.active {
+    display: block;
+}
+
+/* Error Message */
+.error-message {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 1px solid #ff3333;
+    color: #ff3333;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.error-message.active {
+    display: block;
+}
+
+/* Tab Navigation for Race Types */
+.tab-nav {
+    display: flex;
+    margin-bottom: 20px;
+    background-color: #1c1e24;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-wrap: wrap;
+    grid-area: tabs;
+}
+
+.tab-btn {
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    flex: 1;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.tab-btn:hover {
+    background-color: #2a2d36;
+}
+
+.tab-btn.active {
+    background-color: #FF5C00;
+    font-weight: bold;
+}
+
+/* Content Layout */
+.content-wrapper {
+    display: flex;
+    gap: 20px;
+    grid-area: content;
+    margin-top: 20px;
+}
+
+.main-content {
+    flex: 2;
+    order: 1;
+}
+
+.side-leaderboard {
+    flex: 1;
+    width: 300px;
+    min-width: 280px;
+    max-width: 350px;
+    order: 2;
+}
+
+/* Top Drivers Section */
+.top-drivers {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.driver-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 200px;
+}
+
+.driver-bg {
+    background-size: cover;
+    background-position: center;
+    height: 200px;
+    position: relative;
+}
+
+.rb-bg {
+    background-color: #1e2b4a;
+}
+
+.mc-bg {
+    background-color: #EA7000;
+}
+
+.fr-bg {
+    background-color: #DC0000;
+}
+
+.me-bg {
+    background-color: #00D2BE;
+}
+
+.as-bg {
+    background-color: #006F62;
+}
+
+.al-bg {
+    background-color: #0090FF;
+}
+
+.rn-bg {
+    background-color: #FFDA00;
+    background: linear-gradient(135deg, #FFDA00 0%, #1e1e1e 100%);
+}
+
+.fi-bg {
+    background-color: #F596C8;
+    background: linear-gradient(135deg, #F596C8 0%, #F0F0F0 100%);
+}
+
+.tr-bg {
+    background-color: #0000FF;
+    background: linear-gradient(135deg, #0000FF 0%, #1e1e1e 100%);
+}
+
+.lo-bg {
+    background-color: #FFB800;
+    background: linear-gradient(135deg, #FFB800 0%, #1e1e1e 100%);
+}
+
+.ca-bg {
+    background-color: #005030;
+    background: linear-gradient(135deg, #005030 0%, #1e1e1e 100%);
+}
+
+.ma-bg {
+    background-color: #6E0000;
+    background: linear-gradient(135deg, #6E0000 0%, #1e1e1e 100%);
+}
+
+.sa-bg {
+    background-color: #006EFF;
+    background: linear-gradient(135deg, #006EFF 0%, #1e1e1e 100%);
+}
+
+.driver-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.driver-code {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.driver-position {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.driver-status {
+    font-size: 1.2rem;
+}
+
+.time-gap {
+    color: #f8f2e7;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* New Fastest Lap Styling */
+.fastest-lap {
+    background: linear-gradient(90deg, #1c1e24, #292c36);
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.lap-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.lap-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.lap-time-driver {
+    color: #faede6;
+}
+
+.lap-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: nowrap;
+    margin-left: auto;
+}
+
+.lap-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+    font-size: 0.95rem;
+}
+
+.lap-detail i.fa-flag-checkered {
+    color: #9c5bff; /* Purple for lap flag */
+}
+
+.lap-detail i.fa-circle {
+    color: #ffc208; /* Yellow for tyres */
+}
+
+.lap-detail i.fa-heart {
+    color: #ff4d6a; /* Red for tyre age */
+}
+
+/* Race Title */
+.race-title {
+    margin: 30px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.country-flag {
+    width: 40px;
+    height: 30px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.race-name {
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Track Section */
+.track-section {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.track-map {
+    flex: 1;
+    background-color: #1c1e24;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 20px;
+    position: relative;
+}
+
+.track-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.track-location {
+    background-color: #292c36;
+    padding: 10px 20px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.track-date {
+    background-color: #292c36;
+    padding: 10px 20px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.track-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.throttle-gauge {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.gauge-label {
+    text-align: center;
+    color: #46d74b;
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+.speed-trap {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.speed-label {
+    color: #ffa500;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.speed-value {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+/* Results Table */
+.results-table {
+    background-color: #1c1e24;
+    border-radius: 12px;
+    padding: 15px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 0.8fr 1.5fr 1.2fr;
+    padding: 15px 20px;
+    background-color: #1c1e24;  /* Same as background for consistent look */
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #999;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #292c36;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 0.8fr 1.5fr 1.2fr;
+    padding: 12px 20px;
+    border-radius: 0;
+    align-items: center;
+    transition: background-color 0.2s;
+    margin-bottom: 2px;
+}
+
+.table-row:nth-child(odd) {
+    background-color: #23252c;
+}
+
+.table-row:hover {
+    background-color: #292c36;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.position {
+    font-weight: bold;
+    font-size: 1.3rem;
+    text-align: left;
+    color: white;
+}
+
+.driver-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.team-color {
+    width: 5px;
+    height: 20px;
+    border-radius: 2px;
+}
+
+.red-bull {
+    background-color: #0600EF;
+}
+
+.mclaren {
+    background-color: #FF8700;
+}
+
+.ferrari {
+    background-color: #DC0000;
+}
+
+.mercedes {
+    background-color: #00D2BE;
+}
+
+.alpine {
+    background-color: #0090FF;
+}
+
+.aston {
+    background-color: #006F62;
+}
+
+.williams {
+    background-color: #005AFF;
+}
+
+.haas {
+    background-color: #FFFFFF;
+}
+
+.alpha-tauri, .rb {
+    background-color: #4E7C9B;
+}
+
+.alfa-romeo {
+    background-color: #900000;
+}
+
+.renault {
+    background-color: #FFF500;
+}
+
+.force-india {
+    background-color: #FF5F9B;
+}
+
+.racing-point {
+    background-color: #F596C8;
+}
+
+.toro-rosso {
+    background-color: #0000FF;
+}
+
+.lotus {
+    background-color: #FFB800;
+}
+
+.caterham {
+    background-color: #005030;
+}
+
+.marussia {
+    background-color: #6E0000;
+}
+
+.sauber {
+    background-color: #006EFF;
+}
+
+
+.driver-name {
+    font-weight: 600;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    color: white;
+}
+
+.time-cell {
+    text-align: right;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.gap-time {
+    color: #ffa500;
+}
+
+.dnf {
+    color: #ff4d4d;
+}
+
+/* Track Image */
+.track-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Driver Images */
+.driver-image {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 180px;
+    height: auto;
+}
+
+.team-logo {
+    position: absolute;
+    bottom: 60px;
+    right: 10px;
+    width: 80px;
+    height: auto;
+}
+
+.team-logo-small {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* Country Flags */
+.flag-icon {
+    width: 40px;
+    height: 30px;
+    border-radius: 4px;
+}
+
+/* Tire Icons */
+.tire-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.tire-soft {
+    border-color: #FF0000;
+}
+.tire-soft::after {
+    content: "S";
+}
+
+.tire-medium {
+    border-color: #FFDA00;
+}
+.tire-medium::after {
+    content: "M";
+}
+
+.tire-hard {
+    border-color: #FFFFFF;
+}
+.tire-hard::after {
+    content: "H";
+}
+
+.tire-intermediate {
+    border-color: #4CAF50;
+}
+.tire-intermediate::after {
+    content: "I";
+}
+
+.tire-wet {
+    border-color: #2196F3;
+}
+.tire-wet::after {
+    content: "W";
+}
+
+.tire-unknown {
+    border-color: #AAAAAA;
+}
+.tire-unknown::after {
+    content: "?";
+}
+
+.tire-strategy-container {
+    display: block !important;
+    visibility: visible !important;
+    background-color: #1c1e24;
+    border-radius: 12px;
+    margin: 30px 0;
+    padding: 20px;
+    color: white;
+    min-height: 300px;
+    overflow: visible !important;
+}
+
+.tire-strategy-header {
+    display: flex !important;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tire-strategy-container .error {
+    color: #ff3333;
+    padding: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.tire-strategy-container .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: #ccc;
+}
+
+#ts-chart-container {
+    display: block !important;
+    min-height: 400px;
+    visibility: visible !important;
+}
+
+.ts-grid {
+    display: grid !important;
+    grid-template-columns: 60px 1fr !important;
+    min-height: 400px !important;
+}
+
+.ts-stint-Soft { background-color: #E10600 !important; color: white !important; }
+.ts-stint-Medium { background-color: #FFF200 !important; color: black !important; }
+.ts-stint-Hard { background-color: #FFFFFF !important; color: black !important; }
+.ts-stint-Intermediate { background-color: #43B02A !important; color: white !important; }
+.ts-stint-Wet { background-color: #0067AD !important; color: white !important; }
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .table-header, .table-row {
+        grid-template-columns: 0.6fr 1.5fr 1fr;
+    }
+    
+    .position {
+        font-size: 1.2rem;
+    }
+    
+    .driver-name {
+        font-size: 1.1rem;
+    }
+    
+    .time-cell {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-header, .table-row {
+        grid-template-columns: 0.5fr 1.5fr 1fr;
+        padding: 10px 15px;
+    }
+    
+    .position {
+        font-size: 1.1rem;
+    }
+    
+    .driver-name {
+        font-size: 1rem;
+    }
+    
+    .time-cell {
+        font-size: 0.9rem;
+    }
+    
+    .team-logo-small {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .race-name {
+        font-size: 1.2rem;
+    }
+    
+    .tab-btn {
+        min-width: 50%;
+    }
+    
+    .lap-title, .lap-time {
+        font-size: 1rem;
+    }
+    
+    .lap-detail {
+        font-size: 0.8rem;
+    }
+}
