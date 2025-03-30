@@ -92,8 +92,8 @@ body {
 /* Season and Race Selectors */
 .selectors {
     display: flex;
-    gap: 15px;
-    margin-bottom: 10px;
+    gap: 5px;
+    margin-bottom: 5px;
     flex-wrap: wrap;
     grid-area: selectors;
 }
@@ -546,8 +546,8 @@ body {
 .results-table {
     background-color: #1c1e24;
     border-radius: 12px;
-    padding: 15px 0;
-    margin-bottom: 30px;
+    padding: 10px 0; /* Reduced padding */
+    margin-bottom: 20px; /* Reduced margin */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     overflow: hidden;
 }
@@ -555,23 +555,23 @@ body {
 .table-header {
     display: grid;
     grid-template-columns: 0.8fr 1.5fr 1.2fr;
-    padding: 15px 20px;
-    background-color: #1c1e24;  /* Same as background for consistent look */
-    margin-bottom: 5px;
+    padding: 10px 20px; /* Reduced padding */
+    background-color: #1c1e24;
+    margin-bottom: 3px;
     font-weight: 500;
     color: #999;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     border-bottom: 1px solid #292c36;
 }
 
 .table-row {
     display: grid;
     grid-template-columns: 0.8fr 1.5fr 1.2fr;
-    padding: 12px 20px;
+    padding: 6px 20px; /* Reduced padding */
     border-radius: 0;
     align-items: center;
     transition: background-color 0.2s;
-    margin-bottom: 2px;
+    margin-bottom: 0.8px; /* Reduced margin */
 }
 
 .table-row:nth-child(odd) {
@@ -588,21 +588,21 @@ body {
 
 .position {
     font-weight: bold;
-    font-size: 1.3rem;
+    font-size: 1rem; /* Smaller */
     text-align: left;
     color: white;
+}
+
+.team-color {
+    width: 4px; /* Smaller */
+    height: 14px; /* Smaller */
+    border-radius: 2px;
 }
 
 .driver-cell {
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-
-.team-color {
-    width: 5px;
-    height: 20px;
-    border-radius: 2px;
+    gap: 5px; /* Smaller gap */
 }
 
 .red-bull {
@@ -680,7 +680,7 @@ body {
 
 .driver-name {
     font-weight: 600;
-    font-size: 1.2rem;
+    font-size: 1rem; /* Smaller */
     text-transform: uppercase;
     color: white;
 }
@@ -688,7 +688,7 @@ body {
 .time-cell {
     text-align: right;
     font-weight: 500;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .gap-time {
