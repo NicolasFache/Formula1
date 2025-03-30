@@ -680,7 +680,7 @@ def process_lap_data(session):
                 lap_time = lap.get('LapTime', None)
                 lap_number = lap.get('LapNumber', 0)
                 lap_compound = lap.get('Compound', 'Unknown')
-                tire_life = lap.get('TyreLife', 0)
+                tire_life = lap.get('TireLife', 0)
                 
                 # Skip invalid laps
                 if lap_time is None or pd.isna(lap_time) or lap_number is None or pd.isna(lap_number):
@@ -911,8 +911,8 @@ def process_qualifying_data(session, season):
                 "driver": fastest_driver_code,
                 "time": str(fastest_overall_time),
                 "lap": fastest_lap_number,  # Approximation
-                "tyreCompound": "Soft",  # Most likely compound for fastest qualifying lap
-                "tyreAge": 1  # Typically new tires for qualifying
+                "tireCompound": "Soft",  # Most likely compound for fastest qualifying lap
+                "tireAge": 1  # Typically new tires for qualifying
             }
         
         # Build the response
@@ -968,7 +968,7 @@ def process_practice_data(session, season):
                     'time': lap_time,
                     'lap_number': lap.get('LapNumber', 0),
                     'compound': lap.get('Compound', 'Unknown'),
-                    'tyre_life': lap.get('TyreLife', 0)
+                    'tire_life': lap.get('TireLife', 0)
                 }
         
         # No valid laps found
@@ -1022,8 +1022,8 @@ def process_practice_data(session, season):
             "driver": fastest_driver,
             "time": str(fastest_data.get('time', 'Unknown')),
             "lap": fastest_data.get('lap_number', 0),
-            "tyreCompound": fastest_data.get('compound', 'Unknown'),
-            "tyreAge": fastest_data.get('tyre_life', 0)
+            "tireCompound": fastest_data.get('compound', 'Unknown'),
+            "tireAge": fastest_data.get('tire_life', 0)
         }
         
         # Build the response
@@ -1075,22 +1075,22 @@ def get_fastest_lap(session):
             except (ValueError, TypeError):
                 lap_number = 0
                 
-            # Extract tyre compound safely
-            tyre_compound = str(fastest_lap['Compound']) if 'Compound' in fastest_lap else "Unknown"
+            # Extract tire compound safely
+            tire_compound = str(fastest_lap['Compound']) if 'Compound' in fastest_lap else "Unknown"
             
-            # Extract tyre age safely
+            # Extract tire age safely
             try:
-                tyre_age = int(fastest_lap['TyreLife']) if 'TyreLife' in fastest_lap else 0
+                tire_age = int(fastest_lap['TireLife']) if 'TireLife' in fastest_lap else 0
             except (ValueError, TypeError):
-                tyre_age = 0
+                tire_age = 0
                 
             # Create and return the information
             fastest_lap_info = {
                 "driver": driver_code,
                 "time": lap_time_str,
                 "lap": lap_number,
-                "tyreCompound": tyre_compound,
-                "tyreAge": tyre_age
+                "tireCompound": tire_compound,
+                "tireAge": tire_age
             }
             
             logger.info(f"Successfully extracted fastest lap info: {fastest_lap_info}")
@@ -1127,8 +1127,8 @@ def get_fastest_lap(session):
                                 "driver": driver_code,
                                 "time": lap_time,
                                 "lap": lap_number,
-                                "tyreCompound": "Unknown",
-                                "tyreAge": 0
+                                "tireCompound": "Unknown",
+                                "tireAge": 0
                             }
                             
                             logger.info(f"Extracted fastest lap info using alternative method: {fastest_lap_info}")
@@ -1158,8 +1158,8 @@ def get_fastest_lap(session):
         "driver": "HAM",  # Default to Hamilton as a common fastest lap setter
         "time": time_str,
         "lap": 42,
-        "tyreCompound": "Soft",
-        "tyreAge": 5
+        "tireCompound": "Soft",
+        "tireAge": 5
     }
     
     return fastest_lap_info

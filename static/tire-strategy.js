@@ -44,7 +44,7 @@ class TireStrategy {
         this.container.innerHTML = `
             <div class="tire-strategy-header">
                 <div class="ts-title">
-                    <i class="fas fa-chart-bar"></i> TYRE STRATEGY
+                    <i class="fas fa-chart-bar"></i> TIRE STRATEGY
                 </div>
                 <div class="ts-legend">
                     <span class="ts-legend-item"><span class="ts-color-soft"></span> Soft</span>
@@ -222,32 +222,9 @@ class TireStrategy {
             return;
         }
         
-        // Ensure we have valid data
-        if (!this.data) {
-            console.error('No data provided for tire strategy chart');
-            this.chartElement.innerHTML = '<div class="error">No data available</div>';
-            return;
-        }
-        
-        // Force create results if missing
-        if (!this.data.results || !Array.isArray(this.data.results) || this.data.results.length === 0) {
-            console.warn('No results in data, creating placeholder');
-            this.data.results = [];
-            
-            // Create results from strategies
-            if (this.data.strategies) {
-                Object.keys(this.data.strategies).forEach((driverCode, index) => {
-                    this.data.results.push({
-                        position: index + 1,
-                        code: driverCode
-                    });
-                });
-            }
-        }
-        
-        // Force create strategies if missing
-        if (!this.data.strategies || Object.keys(this.data.strategies).length === 0) {
-            console.error('No strategy data available');
+        // Make sure we have valid data
+        if (!this.data || !this.data.results || !this.data.strategies) {
+            console.error('Invalid data for rendering chart:', this.data);
             this.chartElement.innerHTML = '<div class="error">No strategy data available</div>';
             return;
         }
@@ -256,7 +233,7 @@ class TireStrategy {
         const drivers = this.data.results.sort((a, b) => a.position - b.position);
         console.log(`Found ${drivers.length} drivers for chart`);
         
-        // Find total laps
+        // Find total laps from strategies
         let totalLaps = 0;
         for (const driverCode in this.data.strategies) {
             const stints = this.data.strategies[driverCode];
@@ -268,6 +245,7 @@ class TireStrategy {
         
         // Round up to nearest 5
         totalLaps = Math.ceil(totalLaps / 5) * 5;
+        if (totalLaps < 50) totalLaps = 57; // Default for races with incomplete data
         console.log('Total race laps:', totalLaps);
         
         // Create chart HTML

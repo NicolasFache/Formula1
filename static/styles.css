@@ -385,11 +385,11 @@ body {
 }
 
 .lap-detail i.fa-circle {
-    color: #ffc208; /* Yellow for tyres */
+    color: #ffc208; /* Yellow for tires */
 }
 
 .lap-detail i.fa-heart {
-    color: #ff4d6a; /* Red for tyre age */
+    color: #ff4d6a; /* Red for tire age */
 }
 
 /* Race Title */
@@ -746,7 +746,6 @@ body {
     padding: 20px;
     color: white;
     min-height: 300px;
-    overflow: visible !important;
 }
 
 .tire-strategy-header {

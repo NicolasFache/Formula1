@@ -449,11 +449,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Trigger tire strategy loading for race sessions
         if (currentSession === 'race' || currentSession === 'sprint') {
-            console.log('Loading tire strategy data for', currentSession);
+            console.log('Triggering tire strategy load for', currentSeason, currentRace, currentSession);
             if (typeof loadStrategyData === 'function') {
                 setTimeout(() => {
                     loadStrategyData(currentSeason, currentRace, currentSession);
-                }, 500); // Small delay to ensure race data is fully loaded
+                }, 1000); // Small delay to ensure race data is fully loaded
             }
         }
     }
@@ -548,11 +548,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
                 <div class="lap-detail">
-                    <i class="fas fa-circle"></i> Used Tyres
+                    <i class="fas fa-circle"></i> Used Tires
                 </div>
                 
                 <div class="lap-detail">
-                    <i class="fas fa-heart"></i> Tyre Age: ${fastestLapData.tyreAge} laps
+                    <i class="fas fa-heart"></i> Tire Age: ${fastestLapData.tireAge} laps
                 </div>
             </div>
         `;

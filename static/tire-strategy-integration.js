@@ -95,105 +95,119 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadStrategyData(season, race, sessionType) {
-    console.log('Loading strategy data for', season, race, sessionType);
-    
     const container = document.getElementById('tire-strategy-container');
     if (!container) {
-        // Create container if it doesn't exist
-        const mainContent = document.querySelector('.main-content');
-        if (mainContent) {
-            const newContainer = document.createElement('div');
-            newContainer.id = 'tire-strategy-container';
-            newContainer.className = 'tire-strategy-container';
-            mainContent.appendChild(newContainer);
-            console.log('Created tire strategy container');
-        } else {
-            console.error('Main content container not found!');
-            return;
-        }
+        console.error('Tire strategy container not found!');
+        return;
     }
     
-    // Get or re-get the container
-    const strategyContainer = document.getElementById('tire-strategy-container');
-    
-    // Force display styles
-    strategyContainer.style.display = 'block';
-    strategyContainer.style.visibility = 'visible';
-    strategyContainer.style.opacity = '1';
+    // Show container
+    container.style.display = 'block';
     
     // Show loading state
-    strategyContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading strategy data...</p></div>';
+    container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading strategy data...</p></div>';
     
-    // Since API call to /strategy is failing, let's create the strategies from lap data directly
-    const lapsUrl = `/api/season/${season}/race/${race.toString().toLowerCase().replace(/\s+/g, '_')}/laps`;
-    console.log('Fetching laps data from:', lapsUrl);
+    // Format the race_id properly for the API call
+    const raceId = typeof race === 'string' ? 
+        race.toLowerCase().replace(/\s+/g, '_') : race;
     
-    fetch(lapsUrl)
+    // First, get the race data
+    fetch(`/api/season/${season}/race/${raceId}/${sessionType}`)
         .then(response => {
-            console.log('Laps API response status:', response.status);
-            if (!response.ok) throw new Error(`Failed to load laps data (${response.status})`);
+            if (!response.ok) throw new Error(`Failed to load race data (${response.status})`);
             return response.json();
         })
-        .then(lapsData => {
-            console.log('Laps data received, generating strategy data');
+        .then(raceData => {
+            console.log('Race data received for strategy:', raceData);
             
-            // Get race results to combine with strategy
-            const raceUrl = `/api/season/${season}/race/${race.toString().toLowerCase().replace(/\s+/g, '_')}/${sessionType}`;
-            
-            fetch(raceUrl)
-                .then(response => response.json())
-                .then(raceData => {
-                    // Create strategy data manually from lap data
-                    const strategies = generateStrategiesFromLaps(lapsData.lapsData, raceData);
+            // Then get the lap data
+            return fetch(`/api/season/${season}/race/${raceId}/${sessionType}/laps`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`Failed to load laps data (${response.status})`);
+                    return response.json();
+                })
+                .then(lapsData => {
+                    console.log('Laps data received for strategy:', lapsData);
                     
-                    // Combine with race data
-                    const fullData = {
+                    // Build a proper strategy data object from race and laps data
+                    const strategies = extractStrategyFromLaps(lapsData.lapsData);
+                    
+                    // Combine race data with strategies
+                    const strategyData = {
                         ...raceData,
                         strategies: strategies
                     };
                     
-                    console.log('Generated strategy data:', fullData);
+                    console.log('Combined strategy data:', strategyData);
                     
-                    // Create and render chart
+                    // Render the strategy chart
                     try {
-                        // Force create a new instance
-                        window.tireStrategyChart = new TireStrategy('tire-strategy-container');
-                        window.tireStrategyChart.setData(fullData);
+                        const chart = new TireStrategy('tire-strategy-container');
+                        chart.setData(strategyData);
                         console.log('Strategy chart rendered successfully');
                     } catch (e) {
                         console.error('Error rendering strategy chart:', e);
-                        strategyContainer.innerHTML = `<div class="error">Error rendering chart: ${e.message}</div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading race data:', error);
-                    // Create fallback data without race results
-                    const fallbackData = createFallbackData(lapsData.lapsData);
-                    try {
-                        window.tireStrategyChart = new TireStrategy('tire-strategy-container');
-                        window.tireStrategyChart.setData(fallbackData);
-                        console.log('Strategy chart rendered with fallback data');
-                    } catch (e) {
-                        console.error('Error rendering fallback chart:', e);
-                        strategyContainer.innerHTML = `<div class="error">Error rendering chart: ${e.message}</div>`;
+                        container.innerHTML = `<div class="error">Error rendering chart: ${e.message}</div>`;
                     }
                 });
         })
         .catch(error => {
-            console.error('Error loading laps data:', error);
-            // Create hard-coded demo data as last resort
-            const demoData = createDemoStrategyData();
-            try {
-                window.tireStrategyChart = new TireStrategy('tire-strategy-container');
-                window.tireStrategyChart.setData(demoData);
-                console.log('Strategy chart rendered with demo data');
-            } catch (e) {
-                console.error('Error rendering demo chart:', e);
-                strategyContainer.innerHTML = `<div class="error">Error loading strategy data: ${error.message}</div>`;
-            }
+            console.error('Error loading strategy data:', error);
+            container.innerHTML = `<div class="error">Error loading strategy data: ${error.message}</div>`;
         });
 }
 
+function extractStrategyFromLaps(lapsData) {
+    const strategies = {};
+    
+    // For each driver
+    Object.entries(lapsData).forEach(([driverCode, laps]) => {
+        strategies[driverCode] = [];
+        
+        // Skip if no laps
+        if (!laps || laps.length === 0) return;
+        
+        // Sort laps by lap number
+        const sortedLaps = [...laps].sort((a, b) => a.lap - b.lap);
+        
+        let currentStint = null;
+        
+        // Process each lap to identify stints
+        sortedLaps.forEach((lap, index) => {
+            const compound = lap.compound || 'Unknown';
+            const lapNum = lap.lap;
+            
+            // Check if this is a new stint
+            const isNewStint = !currentStint || 
+                currentStint.compound !== compound || 
+                (index > 0 && lapNum > sortedLaps[index-1].lap + 1); // Gap in lap numbers
+            
+            if (isNewStint) {
+                // Add the previous stint if it exists
+                if (currentStint) {
+                    strategies[driverCode].push(currentStint);
+                }
+                
+                // Start a new stint
+                currentStint = {
+                    compound: compound,
+                    laps: 1,
+                    startLap: lapNum
+                };
+            } else {
+                // Continue current stint
+                currentStint.laps++;
+            }
+        });
+        
+        // Add the final stint
+        if (currentStint) {
+            strategies[driverCode].push(currentStint);
+        }
+    });
+    
+    return strategies;
+}
 
 function generateStrategiesFromLaps(lapsData, raceData) {
     const strategies = {};
